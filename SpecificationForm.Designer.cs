@@ -1,4 +1,6 @@
-﻿namespace SpecificationApp
+﻿using System.Windows.Forms;
+
+namespace SpecificationApp
 {
     partial class SpecificationForm
     {
@@ -7,10 +9,6 @@
         private System.Windows.Forms.ComboBox cmbComponent;
         private System.Windows.Forms.Button btnFind;
         private System.Windows.Forms.Panel panelTop;
-        private System.Windows.Forms.Panel panelButtons;
-        private System.Windows.Forms.Button btnAdd;
-        private System.Windows.Forms.Button btnEdit;
-        private System.Windows.Forms.Button btnDelete;
         private System.Windows.Forms.Label label1;
 
         protected override void Dispose(bool disposing)
@@ -29,106 +27,78 @@
             this.label1 = new System.Windows.Forms.Label();
             this.btnFind = new System.Windows.Forms.Button();
             this.cmbComponent = new System.Windows.Forms.ComboBox();
-            this.panelButtons = new System.Windows.Forms.Panel();
-            this.btnDelete = new System.Windows.Forms.Button();
-            this.btnEdit = new System.Windows.Forms.Button();
-            this.btnAdd = new System.Windows.Forms.Button();
             this.panelTop.SuspendLayout();
-            this.panelButtons.SuspendLayout();
             this.SuspendLayout();
 
             // panelTop
-            this.panelTop.BackColor = System.Drawing.Color.LightGray;
+            this.panelTop.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
+            this.panelTop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelTop.Controls.Add(this.label1);
             this.panelTop.Controls.Add(this.btnFind);
             this.panelTop.Controls.Add(this.cmbComponent);
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTop.Location = new System.Drawing.Point(0, 0);
             this.panelTop.Name = "panelTop";
-            this.panelTop.Size = new System.Drawing.Size(584, 40);
+            this.panelTop.Size = new System.Drawing.Size(600, 50);
             this.panelTop.TabIndex = 0;
 
             // label1
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 12);
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.Location = new System.Drawing.Point(12, 18);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(37, 13);
+            this.label1.Size = new System.Drawing.Size(40, 15);
             this.label1.TabIndex = 2;
             this.label1.Text = "Найти";
 
             // cmbComponent
             this.cmbComponent.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbComponent.Location = new System.Drawing.Point(55, 9);
+            this.cmbComponent.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmbComponent.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.cmbComponent.Location = new System.Drawing.Point(58, 15);
             this.cmbComponent.Name = "cmbComponent";
-            this.cmbComponent.Size = new System.Drawing.Size(200, 21);
+            this.cmbComponent.Size = new System.Drawing.Size(200, 23);
             this.cmbComponent.TabIndex = 0;
 
             // btnFind
-            this.btnFind.Location = new System.Drawing.Point(265, 8);
+            this.btnFind.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
+            this.btnFind.FlatAppearance.BorderSize = 0;
+            this.btnFind.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnFind.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnFind.Location = new System.Drawing.Point(265, 13);
             this.btnFind.Name = "btnFind";
-            this.btnFind.Size = new System.Drawing.Size(80, 23);
+            this.btnFind.Size = new System.Drawing.Size(80, 25);
             this.btnFind.TabIndex = 1;
-            this.btnFind.Text = "Показать";
-            this.btnFind.UseVisualStyleBackColor = true;
+            this.btnFind.Text = "Найти";
+            this.btnFind.UseVisualStyleBackColor = false;
             this.btnFind.Click += new System.EventHandler(this.btnFind_Click);
 
             // treeViewSpec
             this.treeViewSpec.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.treeViewSpec.Location = new System.Drawing.Point(0, 40);
+            this.treeViewSpec.DrawMode = TreeViewDrawMode.OwnerDrawAll;
+            this.treeViewSpec.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.treeViewSpec.FullRowSelect = true;
+            this.treeViewSpec.HideSelection = false;
+            this.treeViewSpec.Location = new System.Drawing.Point(0, 50);
             this.treeViewSpec.Name = "treeViewSpec";
-            this.treeViewSpec.Size = new System.Drawing.Size(584, 381);
+            this.treeViewSpec.Size = new System.Drawing.Size(600, 400);
             this.treeViewSpec.TabIndex = 1;
-
-            // panelButtons
-            this.panelButtons.BackColor = System.Drawing.Color.LightGray;
-            this.panelButtons.Controls.Add(this.btnDelete);
-            this.panelButtons.Controls.Add(this.btnEdit);
-            this.panelButtons.Controls.Add(this.btnAdd);
-            this.panelButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelButtons.Location = new System.Drawing.Point(0, 421);
-            this.panelButtons.Name = "panelButtons";
-            this.panelButtons.Size = new System.Drawing.Size(584, 40);
-            this.panelButtons.TabIndex = 2;
-            this.panelButtons.Visible = false;
-
-            // btnAdd
-            this.btnAdd.Location = new System.Drawing.Point(10, 8);
-            this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(90, 25);
-            this.btnAdd.TabIndex = 0;
-            this.btnAdd.Text = "Добавить";
-            this.btnAdd.UseVisualStyleBackColor = true;
-            this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
-
-            // btnEdit
-            this.btnEdit.Location = new System.Drawing.Point(110, 8);
-            this.btnEdit.Name = "btnEdit";
-            this.btnEdit.Size = new System.Drawing.Size(90, 25);
-            this.btnEdit.TabIndex = 1;
-            this.btnEdit.Text = "Изменить";
-            this.btnEdit.UseVisualStyleBackColor = true;
-
-            // btnDelete
-            this.btnDelete.Location = new System.Drawing.Point(210, 8);
-            this.btnDelete.Name = "btnDelete";
-            this.btnDelete.Size = new System.Drawing.Size(90, 25);
-            this.btnDelete.TabIndex = 2;
-            this.btnDelete.Text = "Удалить";
-            this.btnDelete.UseVisualStyleBackColor = true;
-            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
+            this.treeViewSpec.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.treeViewSpec_DrawNode);
+            this.treeViewSpec.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeViewSpec_NodeMouseClick);
+            this.treeViewSpec.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeViewSpec_MouseDown);
 
             // SpecificationForm
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(584, 461);
+            this.BackColor = System.Drawing.Color.White;
+            this.ClientSize = new System.Drawing.Size(600, 450);
             this.Controls.Add(this.treeViewSpec);
-            this.Controls.Add(this.panelButtons);
             this.Controls.Add(this.panelTop);
+            this.MinimumSize = new System.Drawing.Size(616, 489);
             this.Name = "SpecificationForm";
             this.Text = "Спецификация";
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
-            this.panelButtons.ResumeLayout(false);
             this.ResumeLayout(false);
         }
     }
