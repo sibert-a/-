@@ -1,6 +1,4 @@
-﻿using System.Windows.Forms;
-
-namespace SpecificationApp
+﻿namespace SpecificationApp
 {
     partial class SpecificationForm
     {
@@ -30,6 +28,24 @@ namespace SpecificationApp
             this.panelTop.SuspendLayout();
             this.SuspendLayout();
 
+            // treeViewSpec
+            this.treeViewSpec.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeViewSpec.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.treeViewSpec.FullRowSelect = true;
+            this.treeViewSpec.HideSelection = false;
+            this.treeViewSpec.Location = new System.Drawing.Point(0, 50);
+            this.treeViewSpec.Name = "treeViewSpec";
+            this.treeViewSpec.Size = new System.Drawing.Size(600, 400);
+            this.treeViewSpec.TabIndex = 1;
+
+            // ВАЖНО! Эти свойства включают отображение значков
+            this.treeViewSpec.ShowLines = true;
+            this.treeViewSpec.ShowPlusMinus = true;
+            this.treeViewSpec.ShowRootLines = true;
+
+            this.treeViewSpec.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeViewSpec_NodeMouseClick);
+            this.treeViewSpec.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeViewSpec_MouseDown);
+
             // panelTop
             this.panelTop.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
             this.panelTop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -49,43 +65,28 @@ namespace SpecificationApp
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(40, 15);
             this.label1.TabIndex = 2;
-            this.label1.Text = "Найти";
 
-            // cmbComponent
+            // cmbComponent - СДВИНУТ ЛЕВЕЕ И РАСШИРЕН
             this.cmbComponent.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbComponent.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cmbComponent.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.cmbComponent.Location = new System.Drawing.Point(58, 15);
+            this.cmbComponent.Location = new System.Drawing.Point(30, 15); // Было 58, стало 45
             this.cmbComponent.Name = "cmbComponent";
-            this.cmbComponent.Size = new System.Drawing.Size(200, 23);
+            this.cmbComponent.Size = new System.Drawing.Size(250, 23); // Было 200, стало 250
             this.cmbComponent.TabIndex = 0;
 
-            // btnFind
+            // btnFind - СДВИНУТ ИЗ-ЗА РАСШИРЕНИЯ КОМБОБОКСА
             this.btnFind.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
             this.btnFind.FlatAppearance.BorderSize = 0;
             this.btnFind.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnFind.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.btnFind.Location = new System.Drawing.Point(265, 13);
+            this.btnFind.Location = new System.Drawing.Point(280, 13); // Было 265, стало 300
             this.btnFind.Name = "btnFind";
             this.btnFind.Size = new System.Drawing.Size(80, 25);
             this.btnFind.TabIndex = 1;
             this.btnFind.Text = "Найти";
             this.btnFind.UseVisualStyleBackColor = false;
             this.btnFind.Click += new System.EventHandler(this.btnFind_Click);
-
-            // treeViewSpec
-            this.treeViewSpec.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.treeViewSpec.DrawMode = TreeViewDrawMode.OwnerDrawAll;
-            this.treeViewSpec.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.treeViewSpec.FullRowSelect = true;
-            this.treeViewSpec.HideSelection = false;
-            this.treeViewSpec.Location = new System.Drawing.Point(0, 50);
-            this.treeViewSpec.Name = "treeViewSpec";
-            this.treeViewSpec.Size = new System.Drawing.Size(600, 400);
-            this.treeViewSpec.TabIndex = 1;
-            this.treeViewSpec.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.treeViewSpec_DrawNode);
-            this.treeViewSpec.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeViewSpec_NodeMouseClick);
-            this.treeViewSpec.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeViewSpec_MouseDown);
 
             // SpecificationForm
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);

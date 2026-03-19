@@ -19,6 +19,11 @@ namespace SpecificationApp
             LoadComponents();
             this.Load += SpecificationForm_Load;
             CreateContextMenu();
+
+            // Настройка TreeView для гарантированного отображения значков
+            treeViewSpec.ShowLines = true;
+            treeViewSpec.ShowPlusMinus = true;
+            treeViewSpec.ShowRootLines = true;
         }
 
         private void SpecificationForm_Load(object sender, EventArgs e)
@@ -48,7 +53,6 @@ namespace SpecificationApp
             contextMenu.Items.Add(editItem);
             contextMenu.Items.Add(deleteItem);
 
-            // Привязываем контекстное меню к treeView
             treeViewSpec.ContextMenuStrip = contextMenu;
         }
 
@@ -90,33 +94,70 @@ namespace SpecificationApp
             treeViewSpec.Nodes.Clear();
             var spec = fileManager.GetSpecification(compName);
 
+            // Создаем корневой узел (изделие)
             TreeNode root = new TreeNode(compName);
             root.Tag = "root";
-            AddSpecNodes(root, spec);
+
+            // Добавляем все дочерние узлы
+            bool hasChildren = AddSpecNodes(root, spec);
+
+            // Добавляем корневой узел в дерево
             treeViewSpec.Nodes.Add(root);
-            treeViewSpec.ExpandAll();
+
+            // Разворачиваем все узлы, чтобы увидеть значки
+            root.ExpandAll();
+
+            // Принудительно обновляем дерево
+            treeViewSpec.Refresh();
+
+            // Отладочная информация
+            System.Diagnostics.Debug.WriteLine($"Загружена спецификация для {compName}");
+            System.Diagnostics.Debug.WriteLine($"Корневой узел имеет детей: {root.Nodes.Count > 0}");
+
+            // Проверяем каждый узел
+            CheckNodes(root);
         }
 
-        private void AddSpecNodes(TreeNode parent, List<SpecificationItem> items)
+        private bool AddSpecNodes(TreeNode parent, List<SpecificationItem> items)
         {
+            if (items == null || items.Count == 0)
+                return false;
+
             foreach (var item in items)
             {
+                // Создаем узел для текущего элемента
                 TreeNode node = new TreeNode($"{item.Name} ({item.Quantity} шт.)");
                 node.Tag = item.Name;
-                parent.Nodes.Add(node);
 
+                // Рекурсивно добавляем дочерние элементы
+                bool hasGrandChildren = false;
                 if (item.Children != null && item.Children.Count > 0)
                 {
-                    AddSpecNodes(node, item.Children);
+                    hasGrandChildren = AddSpecNodes(node, item.Children);
                 }
+
+                // Добавляем узел к родителю
+                parent.Nodes.Add(node);
+
+                // Отладочная информация
+                System.Diagnostics.Debug.WriteLine($"Добавлен узел: {item.Name}, детей: {node.Nodes.Count}");
+            }
+
+            return parent.Nodes.Count > 0;
+        }
+
+        private void CheckNodes(TreeNode node)
+        {
+            System.Diagnostics.Debug.WriteLine($"Узел '{node.Text}' имеет детей: {node.Nodes.Count}");
+            foreach (TreeNode child in node.Nodes)
+            {
+                CheckNodes(child);
             }
         }
 
         private void treeViewSpec_MouseDown(object sender, MouseEventArgs e)
         {
-            // Определяем, на каком узле произошел клик
             selectedNode = treeViewSpec.GetNodeAt(e.X, e.Y);
-
             if (selectedNode != null)
             {
                 treeViewSpec.SelectedNode = selectedNode;
@@ -126,63 +167,6 @@ namespace SpecificationApp
         private void treeViewSpec_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             selectedNode = e.Node;
-
-            // Обработка клика по квадратику
-            if (e.X < 25) // Область квадратика
-            {
-                if (e.Node.Nodes.Count > 0)
-                {
-                    if (e.Node.IsExpanded)
-                        e.Node.Collapse();
-                    else
-                        e.Node.Expand();
-                }
-            }
-        }
-
-        private void treeViewSpec_DrawNode(object sender, DrawTreeNodeEventArgs e)
-        {
-            // Рисуем фон
-            if (e.Node == selectedNode)
-            {
-                e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(220, 220, 220)), e.Bounds);
-            }
-            else
-            {
-                e.Graphics.FillRectangle(new SolidBrush(Color.White), e.Bounds);
-            }
-
-            // Рисуем квадратик для узлов с детьми
-            if (e.Node.Nodes.Count > 0)
-            {
-                Rectangle rect = new Rectangle(e.Bounds.X - 18, e.Bounds.Y + 2, 14, 14);
-
-                // Белый фон для квадратика
-                e.Graphics.FillRectangle(new SolidBrush(Color.White), rect);
-
-                // Черная рамка
-                using (Pen pen = new Pen(Color.Black))
-                {
-                    e.Graphics.DrawRectangle(pen, rect);
-
-                    // Горизонтальная линия (минус)
-                    e.Graphics.DrawLine(pen, rect.X + 2, rect.Y + 7, rect.X + 11, rect.Y + 7);
-
-                    // Вертикальная линия (плюс) - только если узел свернут
-                    if (!e.Node.IsExpanded)
-                    {
-                        e.Graphics.DrawLine(pen, rect.X + 7, rect.Y + 2, rect.X + 7, rect.Y + 11);
-                    }
-                }
-            }
-
-            // Рисуем текст узла со смещением
-            int textOffset = (e.Node.Nodes.Count > 0) ? 20 : 5;
-            Rectangle textBounds = new Rectangle(e.Bounds.X + textOffset, e.Bounds.Y,
-                                                  e.Bounds.Width - textOffset, e.Bounds.Height);
-
-            TextRenderer.DrawText(e.Graphics, e.Node.Text, e.Node.TreeView.Font,
-                                  textBounds, Color.Black, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
         }
 
         private void AddItem_Click(object sender, EventArgs e)
@@ -212,10 +196,11 @@ namespace SpecificationApp
                 string nodeText = selectedNode.Text;
                 string partName = nodeText.Substring(0, nodeText.LastIndexOf('(')).Trim();
 
-                MessageBox.Show($"Редактирование '{partName}'", "Информация",
+                MessageBox.Show($"Редактирование количества '{partName}' будет реализовано позже", "Информация",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
+
 
         private void DeleteItem_Click(object sender, EventArgs e)
         {
