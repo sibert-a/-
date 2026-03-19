@@ -49,6 +49,42 @@ namespace SpecificationApp
             if (!fileName.EndsWith(".prd"))
                 fileName += ".prd";
 
+            if (File.Exists(fileName))
+            {
+                try
+                {
+                    using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                    using (BinaryReader br = new BinaryReader(fs))
+                    {
+                        byte b1 = br.ReadByte();
+                        byte b2 = br.ReadByte();
+
+                        if (b1 == 'P' && b2 == 'S')
+                        {
+                            // В Windows Forms используем MessageBox вместо консольного ввода
+                            DialogResult result = MessageBox.Show(
+                                $"Файл {fileName} существует. Перезаписать?",
+                                "Подтверждение",
+                                MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Question);
+
+                            if (result != DialogResult.Yes)
+                            {
+                                throw new Exception("Операция отменена");
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception($"Файл существует, но сигнатура не соответствует 'PS'");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Ошибка при проверке файла: {ex.Message}");
+                }
+            }
+
             Close();
 
             if (string.IsNullOrEmpty(specFileName))
@@ -60,38 +96,46 @@ namespace SpecificationApp
                 specFileName += ".prs";
             }
 
-            // Создаем файл компонентов
-            compFs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite);
-            compW = new BinaryWriter(compFs, Encoding.Default);
-            compR = new BinaryReader(compFs, Encoding.Default);
+            try
+            {
+                // Создаем файл компонентов
+                compFs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite);
+                compW = new BinaryWriter(compFs, Encoding.Default);
+                compR = new BinaryReader(compFs, Encoding.Default);
 
-            compW.Write((byte)'P');
-            compW.Write((byte)'S');
-            compW.Write((short)dataLen);
-            compW.Write(-1); // firstPtr
-            compW.Write(SIG_SIZE + LEN_SIZE + FIRST_SIZE + FREE_SIZE + SPEC_NAME_SIZE); // freePtr
+                compW.Write((byte)'P');
+                compW.Write((byte)'S');
+                compW.Write((short)dataLen);
+                compW.Write(-1); // firstPtr
+                compW.Write(SIG_SIZE + LEN_SIZE + FIRST_SIZE + FREE_SIZE + SPEC_NAME_SIZE); // freePtr
 
-            byte[] specBytes = Encoding.Default.GetBytes(specFileName);
-            compW.Write(specBytes);
-            for (int i = specBytes.Length; i < SPEC_NAME_SIZE; i++)
-                compW.Write((byte)' ');
+                byte[] specBytes = Encoding.Default.GetBytes(specFileName);
+                compW.Write(specBytes);
+                for (int i = specBytes.Length; i < SPEC_NAME_SIZE; i++)
+                    compW.Write((byte)' ');
 
-            compW.Flush();
+                compW.Flush();
 
-            // Создаем файл спецификаций
-            specFs = new FileStream(specFileName, FileMode.Create, FileAccess.ReadWrite);
-            specW = new BinaryWriter(specFs, Encoding.Default);
-            specR = new BinaryReader(specFs, Encoding.Default);
+                // Создаем файл спецификаций
+                specFs = new FileStream(specFileName, FileMode.Create, FileAccess.ReadWrite);
+                specW = new BinaryWriter(specFs, Encoding.Default);
+                specR = new BinaryReader(specFs, Encoding.Default);
 
-            // Заголовок файла спецификаций: первые 8 байт
-            specW.Write(-1); // firstSpecPtr - указатель на первую запись
-            specW.Write(FIRST_SIZE + FREE_SIZE); // freeSpecPtr - указатель на свободную область
+                // Заголовок файла спецификаций
+                specW.Write(-1); // firstSpecPtr - указатель на изделие
+                specW.Write(FIRST_SIZE + FREE_SIZE); // freeSpecPtr - указатель на свободную область
 
-            specW.Flush();
+                specW.Flush();
 
-            currentCompFile = fileName;
-            currentSpecFile = specFileName;
-            currentDataLen = dataLen;
+                currentCompFile = fileName;
+                currentSpecFile = specFileName;
+                currentDataLen = dataLen;
+            }
+            catch (Exception ex)
+            {
+                Close();
+                throw new Exception($"Ошибка при создании файлов: {ex.Message}");
+            }
         }
 
         public void Open(string fileName)
@@ -104,34 +148,50 @@ namespace SpecificationApp
 
             Close();
 
-            compFs = new FileStream(fileName, FileMode.Open, FileAccess.ReadWrite);
-            compR = new BinaryReader(compFs, Encoding.Default);
-            compW = new BinaryWriter(compFs, Encoding.Default);
+            try
+            {
+                compFs = new FileStream(fileName, FileMode.Open, FileAccess.ReadWrite);
+                compR = new BinaryReader(compFs, Encoding.Default);
+                compW = new BinaryWriter(compFs, Encoding.Default);
 
-            compFs.Seek(0, SeekOrigin.Begin);
-            byte sig1 = compR.ReadByte();
-            byte sig2 = compR.ReadByte();
+                compFs.Seek(0, SeekOrigin.Begin);
+                byte sig1 = compR.ReadByte();
+                byte sig2 = compR.ReadByte();
 
-            if (sig1 != 'P' || sig2 != 'S')
+                if (sig1 != 'P' || sig2 != 'S')
+                {
+                    Close();
+                    throw new InvalidDataException("Сигнатура файла не соответствует 'PS'");
+                }
+
+                currentDataLen = compR.ReadInt16();
+
+                compFs.Seek(SIG_SIZE + LEN_SIZE + FIRST_SIZE + FREE_SIZE, SeekOrigin.Begin);
+                byte[] specNameBytes = compR.ReadBytes(SPEC_NAME_SIZE);
+                currentSpecFile = Encoding.Default.GetString(specNameBytes).TrimEnd();
+
+                if (!File.Exists(currentSpecFile))
+                {
+                    // В Windows Forms можно показать предупреждение, но не прерывать операцию
+                    System.Diagnostics.Debug.WriteLine($"Предупреждение: файл спецификаций {currentSpecFile} не найден");
+                    // Можно также показать MessageBox, но это может быть навязчиво
+                    // MessageBox.Show($"Предупреждение: файл спецификаций {currentSpecFile} не найден", 
+                    //    "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    specFs = new FileStream(currentSpecFile, FileMode.Open, FileAccess.ReadWrite);
+                    specR = new BinaryReader(specFs, Encoding.Default);
+                    specW = new BinaryWriter(specFs, Encoding.Default);
+                }
+
+                currentCompFile = fileName;
+            }
+            catch (Exception ex)
             {
                 Close();
-                throw new InvalidDataException("Сигнатура файла не соответствует 'PS'");
+                throw new Exception($"Ошибка при открытии файла: {ex.Message}");
             }
-
-            currentDataLen = compR.ReadInt16();
-
-            compFs.Seek(SIG_SIZE + LEN_SIZE + FIRST_SIZE + FREE_SIZE, SeekOrigin.Begin);
-            byte[] specNameBytes = compR.ReadBytes(SPEC_NAME_SIZE);
-            currentSpecFile = Encoding.Default.GetString(specNameBytes).TrimEnd();
-
-            if (File.Exists(currentSpecFile))
-            {
-                specFs = new FileStream(currentSpecFile, FileMode.Open, FileAccess.ReadWrite);
-                specR = new BinaryReader(specFs, Encoding.Default);
-                specW = new BinaryWriter(specFs, Encoding.Default);
-            }
-
-            currentCompFile = fileName;
         }
 
         public void Close()
@@ -157,81 +217,70 @@ namespace SpecificationApp
 
             if (compFs == null) return result;
 
-            // Словарь для хранения информации о том, на какие компоненты ссылаются
-            Dictionary<int, bool> isReferenced = new Dictionary<int, bool>();
+            // Получаем указатель на первый логический элемент из заголовка
+            compFs.Seek(SIG_SIZE + LEN_SIZE, SeekOrigin.Begin);
+            int firstLogicalPtr = compR.ReadInt32();
 
-            // Сначала собираем информацию о ссылках из файла спецификаций
-            if (specFs != null && specFs.Length > FIRST_SIZE + FREE_SIZE)
+            if (firstLogicalPtr == -1)
             {
-                try
-                {
-                    specFs.Seek(0, SeekOrigin.End);
-                    long specEnd = specFs.Position;
-
-                    // Пропускаем заголовок файла спецификаций (первые 8 байт)
-                    int pos = FIRST_SIZE + FREE_SIZE;
-                    while (pos < specEnd)
-                    {
-                        // Проверяем, достаточно ли места для чтения записи
-                        if (pos + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE + NEXT_SIZE > specEnd)
-                            break;
-
-                        specFs.Seek(pos, SeekOrigin.Begin);
-                        sbyte delFlag = specR.ReadSByte();
-                        int compRef = specR.ReadInt32();
-                        short qty = specR.ReadInt16();
-                        int nextPtr = specR.ReadInt32();
-
-                        if (delFlag == 0 && compRef != -1 && compRef != 0)
-                        {
-                            isReferenced[compRef] = true;
-                        }
-
-                        pos += DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE + NEXT_SIZE;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Ошибка при чтении спецификаций: {ex.Message}");
-                }
+                return result; // Список пуст
             }
 
-            // Читаем компоненты
-            compFs.Seek(0, SeekOrigin.End);
-            long endPos = compFs.Position;
-
-            int compPos = SIG_SIZE + LEN_SIZE + FIRST_SIZE + FREE_SIZE + SPEC_NAME_SIZE;
-            while (compPos < endPos)
+            // Получаем указатель на изделие из заголовка файла спецификаций
+            int productPtr = -1;
+            if (specFs != null)
             {
-                // Проверяем, достаточно ли места для чтения записи
-                if (compPos + DEL_SIZE + SPEC_PTR_SIZE + NEXT_SIZE + currentDataLen > endPos)
+                specFs.Seek(0, SeekOrigin.Begin);
+                productPtr = specR.ReadInt32();
+            }
+
+            // Проходим по логическому списку в алфавитном порядке
+            int currentPtr = firstLogicalPtr;
+            while (currentPtr != -1)
+            {
+                // Проверяем корректность указателя
+                if (currentPtr < SIG_SIZE + LEN_SIZE + FIRST_SIZE + FREE_SIZE + SPEC_NAME_SIZE ||
+                    currentPtr >= compFs.Length)
                     break;
 
-                compFs.Seek(compPos, SeekOrigin.Begin);
+                compFs.Seek(currentPtr, SeekOrigin.Begin);
                 sbyte delFlag = compR.ReadSByte();
                 int specAreaPtr = compR.ReadInt32();
                 int nextPtr = compR.ReadInt32();
+
+                // Проверяем, достаточно ли места для чтения имени
+                if (compFs.Position + currentDataLen > compFs.Length)
+                    break;
+
                 byte[] nameBytes = compR.ReadBytes(currentDataLen);
                 string name = Encoding.Default.GetString(nameBytes).TrimEnd();
 
+                // Добавляем только неудаленные записи
                 if (delFlag == 0 && !string.IsNullOrWhiteSpace(name))
                 {
                     string type;
+
                     if (specAreaPtr == -1)
                     {
                         type = "Деталь";
                     }
                     else
                     {
-                        if (isReferenced.ContainsKey(compPos))
-                            type = "Узел";
-                        else
+                        // Проверяем, является ли компонент изделием (указатель из заголовка spec файла)
+                        if (specAreaPtr == productPtr)
+                        {
                             type = "Изделие";
+                        }
+                        else
+                        {
+                            type = "Узел";
+                        }
                     }
+
                     result.Add(new ComponentInfo { Name = name, Type = type });
                 }
 
-                compPos += DEL_SIZE + SPEC_PTR_SIZE + NEXT_SIZE + currentDataLen;
+                currentPtr = nextPtr;
             }
 
             return result;
@@ -242,61 +291,75 @@ namespace SpecificationApp
             if (compFs == null)
                 throw new Exception("Файлы не открыты");
 
-            if (FindComponentByName(name) != -1)
-                throw new Exception($"Компонент с именем '{name}' уже существует");
-
-            if (type == "Изделие" && HasAnyProduct())
-                throw new Exception("Изделие может быть только одно");
-
-            // Получаем указатель на свободное место
-            compFs.Seek(SIG_SIZE + LEN_SIZE + FIRST_SIZE, SeekOrigin.Begin);
-            int freePtr = compR.ReadInt32();
-
-            // Если свободного места нет, добавляем в конец
-            if (freePtr == -1)
+            if (type != "Изделие" && type != "Узел" && type != "Деталь")
             {
-                compFs.Seek(0, SeekOrigin.End);
-                freePtr = (int)compFs.Position;
+                throw new Exception("Ошибка: тип должен быть Изделие, Узел или Деталь");
             }
 
-            // Резервируем место в файле спецификаций
-            int specAreaPtr = -1;
-            if (type != "Деталь")
+            if (FindComponentByName(name) != -1)
+            {
+                throw new Exception($"Ошибка: компонент с именем '{name}' уже существует");
+            }
+
+            // изделие может быть только одно
+            if (type == "Изделие")
+            {
+                if (HasAnyProduct())
+                {
+                    throw new Exception("Ошибка: изделие может быть только одно");
+                }
+            }
+
+            // Получаем указатель на свободное место в файле компонентов
+            compFs.Seek(SIG_SIZE + LEN_SIZE + FIRST_SIZE, SeekOrigin.Begin);
+            int freeCompFilePtr = compR.ReadInt32();
+
+            // РЕЗЕРВИРУЕМ МЕСТО В ФАЙЛЕ СПЕЦИФИКАЦИЙ для этого компонента
+            int specificationPtr = -1;
+            if (type != "Деталь") // Для деталей не нужна спецификация
             {
                 if (specFs == null)
                     throw new Exception("Файл спецификаций не открыт");
 
                 specFs.Seek(FIRST_SIZE, SeekOrigin.Begin);
-                int freeSpecPtr = specR.ReadInt32();
-                specAreaPtr = freeSpecPtr;
+                int freeSpecFilePtr = specR.ReadInt32();
+                specificationPtr = freeSpecFilePtr;
 
-                // Проверяем, нужно ли расширить файл
-                long neededSize = specAreaPtr + DEL_SIZE + SPEC_PTR_SIZE + NEXT_SIZE;
+                // Убеждаемся, что место для записи существует
+                long neededSize = specificationPtr + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE + NEXT_SIZE;
                 if (neededSize > specFs.Length)
                 {
                     specFs.SetLength(neededSize);
                 }
 
-                specFs.Seek(specAreaPtr, SeekOrigin.Begin);
-                specW.Write((sbyte)0); // delFlag для области (не используется)
-                specW.Write(-1); // firstRecordPtr - важно: -1 означает "нет записей"
-                specW.Write(-1); // nextSpecAreaPtr (не используется)
+                // Первая запись спецификации для компонента
+                specFs.Seek(specificationPtr, SeekOrigin.Begin);
+                specW.Write((sbyte)0);      // флаг удаления
+                specW.Write(-1);            // указатель на компонент в списке спецификаций
+                specW.Write((short)1);       // кратность вхождения
+                specW.Write(-1);            // указатель на следующую запись спецификации компонента
 
-                int newFreeSpecPtr = specAreaPtr + DEL_SIZE + SPEC_PTR_SIZE + NEXT_SIZE;
+                // Обновляем указатель на свободную область в файле спецификаций
+                int newFreeSpecPtr = specificationPtr + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE + NEXT_SIZE;
                 specFs.Seek(FIRST_SIZE, SeekOrigin.Begin);
                 specW.Write(newFreeSpecPtr);
+
+                if (type == "Изделие")
+                {
+                    specFs.Seek(0, SeekOrigin.Begin);
+                    specW.Write(specificationPtr);
+                }
                 specW.Flush();
             }
 
-            // Записываем компонент
-            compFs.Seek(freePtr, SeekOrigin.Begin);
-            compW.Write((sbyte)0); // delFlag
-            compW.Write(specAreaPtr); // specAreaPtr
-            compW.Write(-1); // nextPtr
+            // Записываем компонент в файл компонентов
+            compFs.Seek(freeCompFilePtr, SeekOrigin.Begin);
+            compW.Write((sbyte)0);          // флаг удаления
+            compW.Write(specificationPtr);  // указатель на запись в файле спецификаций
+            compW.Write(-1);                // следующий логический элемент списка
 
             byte[] nameBytes = Encoding.Default.GetBytes(name);
 
-            // Дополняем пробелами до нужной длины
             if (nameBytes.Length < currentDataLen)
             {
                 byte[] paddedName = new byte[currentDataLen];
@@ -312,14 +375,14 @@ namespace SpecificationApp
 
             compW.Flush();
 
-            // Обновляем указатель на свободное место
-            int newFreePtr = freePtr + DEL_SIZE + SPEC_PTR_SIZE + NEXT_SIZE + currentDataLen;
+            // Обновляем указатель на свободное место в файле компонентов
+            int newFreeCompFilePtr = freeCompFilePtr + DEL_SIZE + SPEC_PTR_SIZE + NEXT_SIZE + currentDataLen;
             compFs.Seek(SIG_SIZE + LEN_SIZE + FIRST_SIZE, SeekOrigin.Begin);
-            compW.Write(newFreePtr);
+            compW.Write(newFreeCompFilePtr);
             compW.Flush();
 
             // Добавляем в алфавитный порядок
-            AddInAlphabeticalOrder(freePtr, name);
+            AddInAlphabeticalOrder(freeCompFilePtr, name);
         }
 
         public void InputPart(string compName, string partName, short quantity)
@@ -331,36 +394,27 @@ namespace SpecificationApp
             if (compPtr == -1)
                 throw new Exception($"Компонент '{compName}' не найден");
 
-            // Получаем указатель на область спецификации компонента
+            // Получаем указатель на первый элемент списка спецификации компонента
             compFs.Seek(compPtr + DEL_SIZE, SeekOrigin.Begin);
-            int specAreaPtr = compR.ReadInt32();
+            int specListPtr = compR.ReadInt32();
 
-            if (specAreaPtr == -1)
+            if (specListPtr == -1)
                 throw new Exception($"Компонент '{compName}' является деталью и не может иметь спецификацию");
-
-            // Проверяем корректность указателя
-            if (specAreaPtr < FIRST_SIZE + FREE_SIZE || specAreaPtr >= specFs.Length)
-                throw new Exception($"Компонент '{compName}' имеет некорректную область спецификации");
 
             int partPtr = FindComponentByName(partName);
             if (partPtr == -1)
                 throw new Exception($"Комплектующее '{partName}' не найдено");
 
+            // Проверяем, не добавляем ли компонент сам в себя
             if (compPtr == partPtr)
                 throw new Exception("Компонент не может быть комплектующим для самого себя");
 
-            // Переходим в область спецификации компонента
-            specFs.Seek(specAreaPtr + DEL_SIZE, SeekOrigin.Begin);
-
-            // Проверяем, можно ли прочитать firstRecordPtr
-            if (specFs.Position + 4 > specFs.Length)
-                throw new Exception("Ошибка чтения firstRecordPtr");
-
-            int firstRecordPtr = specR.ReadInt32();
+            if (quantity <= 0)
+                throw new Exception("Кратность должна быть положительным числом");
 
             // Проверяем, нет ли уже такой записи
-            int current = firstRecordPtr;
-            while (current != -1 && current != 0)
+            int current = specListPtr;
+            while (current != -1)
             {
                 // Проверяем корректность указателя
                 if (current < FIRST_SIZE + FREE_SIZE || current >= specFs.Length)
@@ -368,25 +422,23 @@ namespace SpecificationApp
 
                 specFs.Seek(current, SeekOrigin.Begin);
 
-                // Проверяем, можно ли прочитать запись
                 if (specFs.Position + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE + NEXT_SIZE > specFs.Length)
                     break;
 
-                sbyte recDelFlag = specR.ReadSByte();
-                int compRef = specR.ReadInt32();
-                short qty = specR.ReadInt16();
-                int next = specR.ReadInt32();
+                sbyte recordDelFlag = specR.ReadSByte();
+                int componentPtr = specR.ReadInt32();
+                specR.ReadInt16(); // кратность пропускаем
+                int nextRecordPtr = specR.ReadInt32();
 
-                if (recDelFlag == 0 && compRef == partPtr)
+                if (recordDelFlag == 0 && componentPtr == partPtr)
                     throw new Exception($"Комплектующее '{partName}' уже есть в спецификации");
 
-                current = next;
+                current = nextRecordPtr;
             }
 
-            // Получаем указатель на свободное место в файле спецификаций
+            // Читаем текущий указатель на свободную область
             specFs.Seek(FIRST_SIZE, SeekOrigin.Begin);
 
-            // Проверяем, можно ли прочитать freeSpecPtr
             if (specFs.Position + 4 > specFs.Length)
                 throw new Exception("Ошибка чтения freeSpecPtr");
 
@@ -408,17 +460,10 @@ namespace SpecificationApp
                 specFs.SetLength(neededSize);
             }
 
-            if (firstRecordPtr == -1 || firstRecordPtr == 0)
+            // Если список не пуст, находим последнюю запись и связываем её с новым блоком
+            if (specListPtr != -1)
             {
-                // Это первая запись в спецификации
-                specFs.Seek(specAreaPtr + DEL_SIZE, SeekOrigin.Begin);
-                specW.Write(recordPtr);
-                specW.Flush();
-            }
-            else
-            {
-                // Ищем последнюю запись
-                int last = firstRecordPtr;
+                int lastRecordPtr = specListPtr;
                 int maxIterations = 1000;
                 int iterations = 0;
 
@@ -427,41 +472,47 @@ namespace SpecificationApp
                     iterations++;
 
                     // Проверяем корректность указателя
-                    if (last < FIRST_SIZE + FREE_SIZE || last >= specFs.Length)
+                    if (lastRecordPtr < FIRST_SIZE + FREE_SIZE || lastRecordPtr >= specFs.Length)
                         break;
 
-                    specFs.Seek(last + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE, SeekOrigin.Begin);
+                    specFs.Seek(lastRecordPtr + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE, SeekOrigin.Begin);
 
-                    // Проверяем, можно ли прочитать next
                     if (specFs.Position + 4 > specFs.Length)
                         break;
 
-                    int next = specR.ReadInt32();
+                    int nextRecordPtr = specR.ReadInt32();
 
-                    if (next == -1 || next == 0)
-                    {
-                        // Нашли последнюю запись
-                        specFs.Seek(last + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE, SeekOrigin.Begin);
-                        specW.Write(recordPtr);
-                        specW.Flush();
+                    if (nextRecordPtr == -1 || nextRecordPtr == 0)
                         break;
-                    }
-                    last = next;
+
+                    lastRecordPtr = nextRecordPtr;
                 }
+
+                // Записываем в последнюю запись указатель на новый блок
+                specFs.Seek(lastRecordPtr + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE, SeekOrigin.Begin);
+                specW.Write(recordPtr);
+                specW.Flush();
+            }
+            else
+            {
+                // Список пуст: нужно обновить указатель на спецификацию в записи компонента
+                compFs.Seek(compPtr + DEL_SIZE, SeekOrigin.Begin);
+                compW.Write(recordPtr);
+                compW.Flush();
             }
 
-            // Записываем новую запись спецификации
+            // Записываем новую запись по адресу freeSpecPtr
             specFs.Seek(recordPtr, SeekOrigin.Begin);
-            specW.Write((sbyte)0); // delFlag
-            specW.Write(partPtr); // compPtr
-            specW.Write(quantity); // qty
-            specW.Write(-1); // nextPtr
+            specW.Write((sbyte)0);   // delFlag
+            specW.Write(partPtr);    // compPtr
+            specW.Write(quantity);   // qty
+            specW.Write(-1);         // nextPtr
             specW.Flush();
 
-            // Обновляем указатель на свободную область
-            int newFreeSpecPtr = recordPtr + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE + NEXT_SIZE;
+            // Обновляем указатель на свободную область в заголовке
+            int newFreePtr = recordPtr + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE + NEXT_SIZE;
             specFs.Seek(FIRST_SIZE, SeekOrigin.Begin);
-            specW.Write(newFreeSpecPtr);
+            specW.Write(newFreePtr);
             specW.Flush();
         }
 
@@ -479,39 +530,33 @@ namespace SpecificationApp
             compW.Write((sbyte)-1);
             compW.Flush();
 
-            // Помечаем все записи в его спецификации как удаленные
+            // Помечаем все записи в списке спецификации как удаленные
             compFs.Seek(compPtr + DEL_SIZE, SeekOrigin.Begin);
-            int specAreaPtr = compR.ReadInt32();
+            int specListPtr = compR.ReadInt32();
 
-            if (specAreaPtr != -1 && specFs != null && specAreaPtr >= FIRST_SIZE + FREE_SIZE && specAreaPtr < specFs.Length)
+            // проверяем, является ли компонент деталью и доступность файла
+            if (specListPtr == -1 && specFs == null)
+                return;
+
+            int current = specListPtr; // указатель на итерируемый элемент списка спецификации
+            while (current != -1)
             {
-                specFs.Seek(specAreaPtr + DEL_SIZE, SeekOrigin.Begin);
+                // Проверяем корректность указателя
+                if (current < FIRST_SIZE + FREE_SIZE || current >= specFs.Length)
+                    break;
+
+                specFs.Seek(current, SeekOrigin.Begin);
+                specW.Write((sbyte)-1);
+
+                specFs.Seek(current + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE, SeekOrigin.Begin);
 
                 if (specFs.Position + 4 <= specFs.Length)
                 {
-                    int firstRecordPtr = compR.ReadInt32();
-
-                    int current = firstRecordPtr;
-                    while (current != -1 && current != 0 && current >= FIRST_SIZE + FREE_SIZE && current < specFs.Length)
-                    {
-                        specFs.Seek(current, SeekOrigin.Begin);
-
-                        if (specFs.Position + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE + NEXT_SIZE <= specFs.Length)
-                        {
-                            specW.Write((sbyte)-1);
-                        }
-
-                        specFs.Seek(current + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE, SeekOrigin.Begin);
-
-                        if (specFs.Position + 4 <= specFs.Length)
-                        {
-                            current = specR.ReadInt32();
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
+                    current = specR.ReadInt32();
+                }
+                else
+                {
+                    break;
                 }
             }
         }
@@ -526,47 +571,49 @@ namespace SpecificationApp
                 throw new Exception($"Компонент '{compName}' не найден");
 
             compFs.Seek(compPtr + DEL_SIZE, SeekOrigin.Begin);
-            int specAreaPtr = compR.ReadInt32();
+            int firstRecordPtr = compR.ReadInt32();
 
-            if (specAreaPtr == -1)
+            if (firstRecordPtr == -1)
                 throw new Exception($"Компонент '{compName}' является деталью и не имеет спецификации");
 
             int partPtr = FindComponentByName(partName);
             if (partPtr == -1)
                 throw new Exception($"Комплектующее '{partName}' не найдено");
 
-            specFs.Seek(specAreaPtr + DEL_SIZE, SeekOrigin.Begin);
-
-            if (specFs.Position + 4 > specFs.Length)
-                return;
-
-            int firstRecordPtr = compR.ReadInt32();
-
+            bool found = false;
             int current = firstRecordPtr;
-            while (current != -1 && current != 0 && current >= FIRST_SIZE + FREE_SIZE && current < specFs.Length)
+            while (current != -1)
             {
+                // Проверяем корректность указателя
+                if (current < FIRST_SIZE + FREE_SIZE || current >= specFs.Length)
+                    break;
+
                 specFs.Seek(current, SeekOrigin.Begin);
 
                 if (specFs.Position + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE + NEXT_SIZE > specFs.Length)
                     break;
 
                 sbyte delFlag = specR.ReadSByte();
-                int compRef = specR.ReadInt32();
+                int partInComponentListPtr = specR.ReadInt32();
                 short qty = specR.ReadInt16();
-                int next = specR.ReadInt32();
+                int nextRecordPtr = specR.ReadInt32();
 
-                if (delFlag == 0 && compRef == partPtr)
+                if (delFlag == 0 && partInComponentListPtr == partPtr)
                 {
                     specFs.Seek(current, SeekOrigin.Begin);
                     specW.Write((sbyte)-1);
                     specW.Flush();
-                    return;
+                    found = true;
+                    break;
                 }
 
-                current = next;
+                current = nextRecordPtr;
             }
 
-            throw new Exception($"Комплектующее '{partName}' не найдено в спецификации '{compName}'");
+            if (!found)
+            {
+                throw new Exception($"Комплектующее '{partName}' не найдено в спецификации '{compName}'");
+            }
         }
 
         public void RestoreComponent(string name)
@@ -580,39 +627,36 @@ namespace SpecificationApp
             compW.Write((sbyte)0);
             compW.Flush();
 
-            // Получаем указатель на область спецификации
+            // Получаем указатель на список спецификации
             compFs.Seek(compPtr + DEL_SIZE, SeekOrigin.Begin);
-            int specAreaPtr = compR.ReadInt32();
+            int firstRecordPtr = compR.ReadInt32();
 
             // Восстанавливаем все записи в спецификации
-            if (specAreaPtr != -1 && specAreaPtr != 0 && specFs != null && specAreaPtr >= FIRST_SIZE + FREE_SIZE && specAreaPtr < specFs.Length)
+            if (firstRecordPtr != -1 && specFs != null)
             {
-                specFs.Seek(specAreaPtr + DEL_SIZE, SeekOrigin.Begin);
-
-                if (specFs.Position + 4 <= specFs.Length)
+                int current = firstRecordPtr;
+                while (current != -1)
                 {
-                    int firstRecordPtr = compR.ReadInt32();
+                    // Проверяем корректность указателя
+                    if (current < FIRST_SIZE + FREE_SIZE || current >= specFs.Length)
+                        break;
 
-                    int current = firstRecordPtr;
-                    while (current != -1 && current != 0 && current >= FIRST_SIZE + FREE_SIZE && current < specFs.Length)
+                    specFs.Seek(current, SeekOrigin.Begin);
+
+                    if (specFs.Position + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE + NEXT_SIZE <= specFs.Length)
                     {
-                        specFs.Seek(current, SeekOrigin.Begin);
+                        specW.Write((sbyte)0);
+                    }
 
-                        if (specFs.Position + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE + NEXT_SIZE <= specFs.Length)
-                        {
-                            specW.Write((sbyte)0);
-                        }
+                    specFs.Seek(current + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE, SeekOrigin.Begin);
 
-                        specFs.Seek(current + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE, SeekOrigin.Begin);
-
-                        if (specFs.Position + 4 <= specFs.Length)
-                        {
-                            current = specR.ReadInt32();
-                        }
-                        else
-                        {
-                            break;
-                        }
+                    if (specFs.Position + 4 <= specFs.Length)
+                    {
+                        current = specR.ReadInt32();
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
             }
@@ -630,30 +674,15 @@ namespace SpecificationApp
                 return result;
 
             compFs.Seek(compPtr + DEL_SIZE, SeekOrigin.Begin);
-            int specAreaPtr = compR.ReadInt32();
+            int specHeadPtr = compR.ReadInt32();
 
-            if (specAreaPtr == -1 || specFs == null)
+            if (specHeadPtr == -1 || specFs == null)
                 return result;
 
-            // Проверяем, что указатель корректен
-            if (specAreaPtr < FIRST_SIZE + FREE_SIZE || specAreaPtr >= specFs.Length)
-                return result;
-
-            specFs.Seek(specAreaPtr + DEL_SIZE, SeekOrigin.Begin);
-
-            // Проверяем, можем ли прочитать
-            if (specFs.Position + 4 > specFs.Length)
-                return result;
-
-            int firstRecordPtr = compR.ReadInt32();
-
-            if (firstRecordPtr == -1 || firstRecordPtr == 0)
-                return result;
-
-            return GetSpecRecords(firstRecordPtr);
+            return GetSpecRecordsRecursive(specHeadPtr, 1);
         }
 
-        private List<SpecificationItem> GetSpecRecords(int recordPtr)
+        private List<SpecificationItem> GetSpecRecordsRecursive(int recordPtr, int level)
         {
             var result = new List<SpecificationItem>();
 
@@ -661,8 +690,12 @@ namespace SpecificationApp
                 return result;
 
             int current = recordPtr;
-            while (current != -1 && current != 0 && current >= FIRST_SIZE + FREE_SIZE && current < specFs.Length)
+            while (current != -1 && current != 0)
             {
+                // Проверяем корректность указателя
+                if (current < FIRST_SIZE + FREE_SIZE || current >= specFs.Length)
+                    break;
+
                 try
                 {
                     specFs.Seek(current, SeekOrigin.Begin);
@@ -684,7 +717,7 @@ namespace SpecificationApp
                         {
                             compFs.Seek(compPtr, SeekOrigin.Begin);
                             sbyte compDel = compR.ReadSByte();
-                            int compSpecArea = compR.ReadInt32();
+                            int compSpecHead = compR.ReadInt32();
                             int compNext = compR.ReadInt32();
                             byte[] nameBytes = compR.ReadBytes(currentDataLen);
                             string name = Encoding.Default.GetString(nameBytes).TrimEnd();
@@ -695,18 +728,11 @@ namespace SpecificationApp
                                 Quantity = qty
                             };
 
-                            if (compSpecArea != -1 && compSpecArea != 0 &&
-                                compSpecArea >= FIRST_SIZE + FREE_SIZE && compSpecArea < specFs.Length)
+                            // Рекурсивно получаем дочерние элементы
+                            if (compSpecHead != -1 && compSpecHead != 0 &&
+                                compSpecHead >= FIRST_SIZE + FREE_SIZE && compSpecHead < specFs.Length)
                             {
-                                specFs.Seek(compSpecArea + DEL_SIZE, SeekOrigin.Begin);
-                                if (specFs.Position + 4 <= specFs.Length)
-                                {
-                                    int subFirstPtr = compR.ReadInt32();
-                                    if (subFirstPtr != -1 && subFirstPtr != 0)
-                                    {
-                                        item.Children = GetSpecRecords(subFirstPtr);
-                                    }
-                                }
+                                item.Children = GetSpecRecordsRecursive(compSpecHead, level + 1);
                             }
 
                             result.Add(item);
@@ -830,22 +856,20 @@ namespace SpecificationApp
                 return false;
 
             specFs.Seek(0, SeekOrigin.End);
-            long endPos = specFs.Position;
+            long specEnd = specFs.Position;
 
             int pos = FIRST_SIZE + FREE_SIZE;
-            while (pos < endPos)
+            while (pos < specEnd)
             {
                 try
                 {
                     // Проверяем, достаточно ли места для чтения записи
-                    if (pos + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE + NEXT_SIZE > endPos)
+                    if (pos + DEL_SIZE + SPEC_PTR_SIZE + QTY_SIZE + NEXT_SIZE > specEnd)
                         break;
 
                     specFs.Seek(pos, SeekOrigin.Begin);
                     sbyte delFlag = specR.ReadSByte();
                     int compRef = specR.ReadInt32();
-                    short qty = specR.ReadInt16();
-                    int nextPtr = specR.ReadInt32();
 
                     if (delFlag == 0 && compRef == compPtr)
                         return true;
