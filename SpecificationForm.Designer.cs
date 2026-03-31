@@ -9,6 +9,7 @@
         private System.Windows.Forms.Panel panelTop;
         private System.Windows.Forms.Label label1;
 
+        // Освобождает ресурсы, используемые формой
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -18,6 +19,7 @@
             base.Dispose(disposing);
         }
 
+        // Инициализирует все элементы управления формы: TreeView, панель, выпадающий список, кнопку
         private void InitializeComponent()
         {
             this.treeViewSpec = new System.Windows.Forms.TreeView();
@@ -28,7 +30,7 @@
             this.panelTop.SuspendLayout();
             this.SuspendLayout();
 
-            // treeViewSpec
+            // treeViewSpec - дерево для отображения иерархической структуры спецификации
             this.treeViewSpec.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeViewSpec.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.treeViewSpec.FullRowSelect = true;
@@ -46,7 +48,7 @@
             this.treeViewSpec.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeViewSpec_NodeMouseClick);
             this.treeViewSpec.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeViewSpec_MouseDown);
 
-            // panelTop
+            // panelTop - верхняя панель с элементами управления
             this.panelTop.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
             this.panelTop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelTop.Controls.Add(this.label1);
@@ -58,7 +60,7 @@
             this.panelTop.Size = new System.Drawing.Size(600, 50);
             this.panelTop.TabIndex = 0;
 
-            // label1
+            // label1 - метка для выпадающего списка
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label1.Location = new System.Drawing.Point(12, 18);
@@ -66,21 +68,21 @@
             this.label1.Size = new System.Drawing.Size(40, 15);
             this.label1.TabIndex = 2;
 
-            // cmbComponent - СДВИНУТ ЛЕВЕЕ И РАСШИРЕН
+            // cmbComponent - выпадающий список для выбора компонента (только узлы и изделия)
             this.cmbComponent.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbComponent.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cmbComponent.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.cmbComponent.Location = new System.Drawing.Point(30, 15); // Было 58, стало 45
+            this.cmbComponent.Location = new System.Drawing.Point(30, 15);
             this.cmbComponent.Name = "cmbComponent";
-            this.cmbComponent.Size = new System.Drawing.Size(250, 23); // Было 200, стало 250
+            this.cmbComponent.Size = new System.Drawing.Size(250, 23);
             this.cmbComponent.TabIndex = 0;
 
-            // btnFind - СДВИНУТ ИЗ-ЗА РАСШИРЕНИЯ КОМБОБОКСА
+            // btnFind - кнопка для загрузки спецификации выбранного компонента
             this.btnFind.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
             this.btnFind.FlatAppearance.BorderSize = 0;
             this.btnFind.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnFind.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.btnFind.Location = new System.Drawing.Point(280, 13); // Было 265, стало 300
+            this.btnFind.Location = new System.Drawing.Point(280, 13);
             this.btnFind.Name = "btnFind";
             this.btnFind.Size = new System.Drawing.Size(80, 25);
             this.btnFind.TabIndex = 1;
@@ -88,7 +90,7 @@
             this.btnFind.UseVisualStyleBackColor = false;
             this.btnFind.Click += new System.EventHandler(this.btnFind_Click);
 
-            // SpecificationForm
+            // SpecificationForm - настройка главного окна формы
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;

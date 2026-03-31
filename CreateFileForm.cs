@@ -9,11 +9,13 @@ namespace SpecificationApp
         public int DataLen { get; private set; }
         public string SpecFileName { get; private set; }
 
+        // Конструктор - инициализирует форму для создания нового файла
         public CreateFileForm()
         {
             InitializeComponent();
         }
 
+        // Обрабатывает нажатие OK: проверяет введенные данные, сохраняет их и закрывает форму
         private void btnOK_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtFileName.Text))
@@ -38,6 +40,7 @@ namespace SpecificationApp
             Close();
         }
 
+        // Обрабатывает нажатие Cancel: закрывает форму с отменой
         private void btnCancel_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;

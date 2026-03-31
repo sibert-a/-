@@ -9,6 +9,7 @@ namespace SpecificationApp
         private ComponentsForm componentsForm;
         private SpecificationForm specificationForm;
 
+        // Конструктор главной формы - инициализирует компоненты и менеджер файлов
         public Form1()
         {
             InitializeComponent();
@@ -16,6 +17,7 @@ namespace SpecificationApp
             обновитьСостояниеМеню(false);
         }
 
+        // Обрабатывает нажатие пункта меню "Создать" - открывает форму создания файлов
         private void создатьToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (var createForm = new CreateFileForm())
@@ -38,6 +40,7 @@ namespace SpecificationApp
             }
         }
 
+        // Обрабатывает нажатие пункта меню "Открыть" - открывает диалог выбора файла
         private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -63,12 +66,14 @@ namespace SpecificationApp
             }
         }
 
+        // Обрабатывает нажатие пункта меню "Выход" - закрывает файлы и завершает приложение
         private void выходToolStripMenuItem_Click(object sender, EventArgs e)
         {
             fileManager.Close();
             Application.Exit();
         }
 
+        // Обрабатывает нажатие пункта меню "Компоненты" - открывает форму управления компонентами
         private void компонентыToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (componentsForm == null || componentsForm.IsDisposed)
@@ -84,6 +89,7 @@ namespace SpecificationApp
             }
         }
 
+        // Обрабатывает нажатие пункта меню "Спецификация" - открывает форму просмотра спецификации
         private void спецификацияToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (specificationForm == null || specificationForm.IsDisposed)
@@ -99,12 +105,14 @@ namespace SpecificationApp
             }
         }
 
+        // Обновляет состояние пунктов меню в зависимости от того, открыты ли файлы
         private void обновитьСостояниеМеню(bool файлыОткрыты)
         {
             компонентыToolStripMenuItem.Enabled = файлыОткрыты;
             спецификацияToolStripMenuItem.Enabled = файлыОткрыты;
         }
 
+        // Обрабатывает закрытие главной формы - закрывает файлы
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             fileManager.Close();

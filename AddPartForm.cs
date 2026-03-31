@@ -8,6 +8,7 @@ namespace SpecificationApp
         private FileManager fileManager;
         private string componentName;
 
+        // Конструктор - инициализирует форму, сохраняет менеджер и имя компонента, загружает список деталей
         public AddPartForm(FileManager manager, string compName)
         {
             InitializeComponent();
@@ -16,6 +17,7 @@ namespace SpecificationApp
             LoadParts();
         }
 
+        // Загружает в выпадающий список все компоненты, кроме текущего
         private void LoadParts()
         {
             cmbPart.Items.Clear();
@@ -29,6 +31,7 @@ namespace SpecificationApp
             }
         }
 
+        // Обрабатывает нажатие OK: проверяет выбор, добавляет деталь к компоненту, закрывает форму
         private void btnOK_Click(object sender, EventArgs e)
         {
             if (cmbPart.SelectedItem == null)
@@ -53,6 +56,7 @@ namespace SpecificationApp
             }
         }
 
+        // Обрабатывает нажатие Cancel: закрывает форму с отменой
         private void btnCancel_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;

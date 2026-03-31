@@ -1,5 +1,4 @@
-﻿
-namespace SpecificationApp
+﻿namespace SpecificationApp
 {
     partial class AddPartForm
     {
@@ -11,6 +10,7 @@ namespace SpecificationApp
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
 
+        // Освобождает ресурсы, используемые формой
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,6 +20,7 @@ namespace SpecificationApp
             base.Dispose(disposing);
         }
 
+        // Инициализирует все элементы управления формы: метки, выпадающий список, счетчик, кнопки
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
@@ -31,7 +32,7 @@ namespace SpecificationApp
             ((System.ComponentModel.ISupportInitialize)(this.nudQuantity)).BeginInit();
             this.SuspendLayout();
 
-            // label1
+            // label1 - метка для выбора комплектующего
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 18);
             this.label1.Name = "label1";
@@ -39,7 +40,7 @@ namespace SpecificationApp
             this.label1.TabIndex = 0;
             this.label1.Text = "Комплектующее:";
 
-            // cmbPart
+            // cmbPart - выпадающий список для выбора комплектующего
             this.cmbPart.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbPart.FormattingEnabled = true;
             this.cmbPart.Location = new System.Drawing.Point(105, 15);
@@ -47,7 +48,7 @@ namespace SpecificationApp
             this.cmbPart.Size = new System.Drawing.Size(170, 21);
             this.cmbPart.TabIndex = 1;
 
-            // label2
+            // label2 - метка для поля количества
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(12, 48);
             this.label2.Name = "label2";
@@ -55,7 +56,7 @@ namespace SpecificationApp
             this.label2.TabIndex = 2;
             this.label2.Text = "Кратность:";
 
-            // nudQuantity
+            // nudQuantity - поле ввода количества (от 1 до 999)
             this.nudQuantity.Location = new System.Drawing.Point(105, 45);
             this.nudQuantity.Maximum = new decimal(new int[] {
             999,
@@ -76,7 +77,7 @@ namespace SpecificationApp
             0,
             0});
 
-            // btnOK
+            // btnOK - кнопка подтверждения добавления
             this.btnOK.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOK.Location = new System.Drawing.Point(105, 80);
             this.btnOK.Name = "btnOK";
@@ -86,7 +87,7 @@ namespace SpecificationApp
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
 
-            // btnCancel
+            // btnCancel - кнопка отмены добавления
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancel.Location = new System.Drawing.Point(195, 80);
             this.btnCancel.Name = "btnCancel";
@@ -96,7 +97,7 @@ namespace SpecificationApp
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
 
-            // AddPartForm
+            // AddPartForm - настройка главного окна формы
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(290, 120);

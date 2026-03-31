@@ -18,6 +18,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
 
+        // Освобождает ресурсы, используемые формой
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -27,6 +28,7 @@
             base.Dispose(disposing);
         }
 
+        // Инициализирует все элементы управления формы: ListView, панели, кнопки, поля ввода
         private void InitializeComponent()
         {
             this.listViewComponents = new System.Windows.Forms.ListView();
@@ -47,7 +49,7 @@
             this.panelBottom.SuspendLayout();
             this.SuspendLayout();
 
-            // listViewComponents
+            // listViewComponents - таблица для отображения списка компонентов (наименование и тип)
             this.listViewComponents.BackColor = System.Drawing.Color.White;
             this.listViewComponents.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.listViewComponents.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -67,15 +69,15 @@
             this.listViewComponents.View = System.Windows.Forms.View.Details;
             this.listViewComponents.SelectedIndexChanged += new System.EventHandler(this.listViewComponents_SelectedIndexChanged);
 
-            // columnHeader1
+            // columnHeader1 - заголовок колонки "Наименование"
             this.columnHeader1.Text = "Наименование";
             this.columnHeader1.Width = 300;
 
-            // columnHeader2
+            // columnHeader2 - заголовок колонки "Тип"
             this.columnHeader2.Text = "Тип";
             this.columnHeader2.Width = 150;
 
-            // panelTop
+            // panelTop - верхняя панель с кнопками управления
             this.panelTop.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
             this.panelTop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelTop.Controls.Add(this.btnAdd);
@@ -89,7 +91,7 @@
             this.panelTop.Size = new System.Drawing.Size(600, 40);
             this.panelTop.TabIndex = 1;
 
-            // btnAdd
+            // btnAdd - кнопка добавления нового компонента
             this.btnAdd.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
             this.btnAdd.FlatAppearance.BorderSize = 0;
             this.btnAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -103,7 +105,7 @@
             this.btnAdd.UseVisualStyleBackColor = false;
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
 
-            // btnEdit
+            // btnEdit - кнопка редактирования выбранного компонента
             this.btnEdit.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
             this.btnEdit.Enabled = false;
             this.btnEdit.FlatAppearance.BorderSize = 0;
@@ -118,7 +120,7 @@
             this.btnEdit.UseVisualStyleBackColor = false;
             this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
 
-            // btnCancel
+            // btnCancel - кнопка отмены редактирования
             this.btnCancel.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
             this.btnCancel.Enabled = false;
             this.btnCancel.FlatAppearance.BorderSize = 0;
@@ -133,7 +135,7 @@
             this.btnCancel.UseVisualStyleBackColor = false;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
 
-            // btnSave
+            // btnSave - кнопка сохранения нового или отредактированного компонента
             this.btnSave.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
             this.btnSave.Enabled = false;
             this.btnSave.FlatAppearance.BorderSize = 0;
@@ -148,7 +150,7 @@
             this.btnSave.UseVisualStyleBackColor = false;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
 
-            // btnDelete
+            // btnDelete - кнопка удаления выбранного компонента
             this.btnDelete.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
             this.btnDelete.Enabled = false;
             this.btnDelete.FlatAppearance.BorderSize = 0;
@@ -163,7 +165,7 @@
             this.btnDelete.UseVisualStyleBackColor = false;
             this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
 
-            // panelBottom
+            // panelBottom - нижняя панель для ввода данных компонента
             this.panelBottom.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
             this.panelBottom.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelBottom.Controls.Add(this.cmbType);
@@ -177,7 +179,7 @@
             this.panelBottom.TabIndex = 2;
             this.panelBottom.Visible = false;
 
-            // label1
+            // label1 - метка для поля "Наименование"
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label1.Location = new System.Drawing.Point(10, 18);
@@ -186,7 +188,7 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Наименование";
 
-            // txtName
+            // txtName - поле ввода наименования компонента
             this.txtName.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
             this.txtName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtName.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
@@ -195,7 +197,7 @@
             this.txtName.Size = new System.Drawing.Size(180, 21);
             this.txtName.TabIndex = 1;
 
-            // label2
+            // label2 - метка для поля "Тип"
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label2.Location = new System.Drawing.Point(295, 18);
@@ -204,7 +206,7 @@
             this.label2.TabIndex = 2;
             this.label2.Text = "Тип";
 
-            // cmbType
+            // cmbType - выпадающий список для выбора типа компонента (Изделие/Узел/Деталь)
             this.cmbType.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
             this.cmbType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbType.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -218,7 +220,7 @@
             this.cmbType.Size = new System.Drawing.Size(100, 23);
             this.cmbType.TabIndex = 3;
 
-            // ComponentsForm
+            // ComponentsForm - настройка главного окна формы
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;

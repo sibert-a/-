@@ -12,6 +12,7 @@ namespace SpecificationApp
         private ContextMenuStrip contextMenu;
         private TreeNode selectedNode;
 
+        // Конструктор - инициализирует форму, создает контекстное меню и загружает компоненты
         public SpecificationForm(FileManager manager)
         {
             InitializeComponent();
@@ -26,11 +27,13 @@ namespace SpecificationApp
             treeViewSpec.ShowRootLines = true;
         }
 
+        // Обрабатывает загрузку формы - обновляет список компонентов
         private void SpecificationForm_Load(object sender, EventArgs e)
         {
             LoadComponents();
         }
 
+        // Создает контекстное меню для TreeView (Добавить, Изменить, Удалить)
         private void CreateContextMenu()
         {
             contextMenu = new ContextMenuStrip();
@@ -56,11 +59,13 @@ namespace SpecificationApp
             treeViewSpec.ContextMenuStrip = contextMenu;
         }
 
+        // Обновляет список компонентов (вызывается извне)
         public void RefreshComponents()
         {
             LoadComponents();
         }
 
+        // Загружает в выпадающий список все компоненты, кроме деталей
         private void LoadComponents()
         {
             cmbComponent.Items.Clear();
@@ -80,6 +85,7 @@ namespace SpecificationApp
             }
         }
 
+        // Обрабатывает нажатие кнопки "Найти" - загружает спецификацию выбранного компонента
         private void btnFind_Click(object sender, EventArgs e)
         {
             if (cmbComponent.SelectedItem != null)
@@ -89,6 +95,7 @@ namespace SpecificationApp
             }
         }
 
+        // Загружает и отображает древовидную структуру спецификации для указанного компонента
         private void LoadSpecification(string compName)
         {
             treeViewSpec.Nodes.Clear();
@@ -118,6 +125,7 @@ namespace SpecificationApp
             CheckNodes(root);
         }
 
+        // Рекурсивно добавляет узлы спецификации в TreeView
         private bool AddSpecNodes(TreeNode parent, List<SpecificationItem> items)
         {
             if (items == null || items.Count == 0)
@@ -146,6 +154,7 @@ namespace SpecificationApp
             return parent.Nodes.Count > 0;
         }
 
+        // Рекурсивно выводит отладочную информацию о всех узлах дерева
         private void CheckNodes(TreeNode node)
         {
             System.Diagnostics.Debug.WriteLine($"Узел '{node.Text}' имеет детей: {node.Nodes.Count}");
@@ -155,6 +164,7 @@ namespace SpecificationApp
             }
         }
 
+        // Обрабатывает нажатие мыши на TreeView - сохраняет выбранный узел
         private void treeViewSpec_MouseDown(object sender, MouseEventArgs e)
         {
             selectedNode = treeViewSpec.GetNodeAt(e.X, e.Y);
@@ -164,11 +174,13 @@ namespace SpecificationApp
             }
         }
 
+        // Обрабатывает клик по узлу дерева - сохраняет выбранный узел
         private void treeViewSpec_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             selectedNode = e.Node;
         }
 
+        // Обрабатывает выбор пункта "Добавить" в контекстном меню - открывает форму добавления комплектующего
         private void AddItem_Click(object sender, EventArgs e)
         {
             if (selectedNode != null && !string.IsNullOrEmpty(currentComponent))
@@ -189,6 +201,7 @@ namespace SpecificationApp
             }
         }
 
+        // Обрабатывает выбор пункта "Изменить" в контекстном меню - редактирование количества (в разработке)
         private void EditItem_Click(object sender, EventArgs e)
         {
             if (selectedNode != null && selectedNode.Parent != null)
@@ -201,7 +214,7 @@ namespace SpecificationApp
             }
         }
 
-
+        // Обрабатывает выбор пункта "Удалить" в контекстном меню - удаляет комплектующее из спецификации
         private void DeleteItem_Click(object sender, EventArgs e)
         {
             if (selectedNode != null && selectedNode.Parent != null)

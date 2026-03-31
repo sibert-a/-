@@ -6,12 +6,14 @@ using System.Windows.Forms;
 
 namespace SpecificationApp
 {
+    // Класс для хранения информации о компоненте (наименование и тип)
     public class ComponentInfo
     {
         public string Name { get; set; }
         public string Type { get; set; }
     }
 
+    // Класс для представления элемента спецификации (наименование, количество, дочерние элементы)
     public class SpecificationItem
     {
         public string Name { get; set; }
@@ -19,31 +21,38 @@ namespace SpecificationApp
         public List<SpecificationItem> Children { get; set; } = new List<SpecificationItem>();
     }
 
+    // Основной класс для работы с файлами данных (компоненты и спецификации)
     public class FileManager
     {
-        const int SIG_SIZE = 2;
-        const int LEN_SIZE = 2;
-        const int FIRST_SIZE = 4;
-        const int FREE_SIZE = 4;
-        const int SPEC_NAME_SIZE = 16;
-        const int DEL_SIZE = 1;
-        const int SPEC_PTR_SIZE = 4;
-        const int NEXT_SIZE = 4;
-        const int QTY_SIZE = 2;
+        // Константы размеров полей в байтах
+        const int SIG_SIZE = 2;           // сигнатура файла
+        const int LEN_SIZE = 2;           // длина имени компонента
+        const int FIRST_SIZE = 4;         // указатель на первый логический элемент
+        const int FREE_SIZE = 4;          // указатель на свободную область
+        const int SPEC_NAME_SIZE = 16;    // размер имени файла спецификации
+        const int DEL_SIZE = 1;           // флаг удаления
+        const int SPEC_PTR_SIZE = 4;      // указатель на запись в файле спецификаций
+        const int NEXT_SIZE = 4;          // указатель на следующий элемент
+        const int QTY_SIZE = 2;           // размер поля кратности
 
+        // Потоки для работы с файлом компонентов
         FileStream compFs;
         BinaryWriter compW;
         BinaryReader compR;
+
+        // Потоки для работы с файлом спецификаций
         FileStream specFs;
         BinaryWriter specW;
         BinaryReader specR;
 
-        string currentCompFile;
-        string currentSpecFile;
-        int currentDataLen;
+        string currentCompFile;    // имя текущего файла компонентов
+        string currentSpecFile;    // имя текущего файла спецификаций
+        int currentDataLen;        // длина имени компонента в байтах
 
+        // Свойство, указывающее, открыт ли файл
         public bool IsFileOpen => compFs != null;
 
+        // Создает новые файлы (компонентов и спецификаций)
         public void Create(string fileName, int dataLen, string specFileName = null)
         {
             if (!fileName.EndsWith(".prd"))
@@ -103,12 +112,14 @@ namespace SpecificationApp
                 compW = new BinaryWriter(compFs, Encoding.Default);
                 compR = new BinaryReader(compFs, Encoding.Default);
 
+                // Записываем заголовок файла компонентов
                 compW.Write((byte)'P');
                 compW.Write((byte)'S');
                 compW.Write((short)dataLen);
                 compW.Write(-1); // firstPtr
                 compW.Write(SIG_SIZE + LEN_SIZE + FIRST_SIZE + FREE_SIZE + SPEC_NAME_SIZE); // freePtr
 
+                // Записываем имя файла спецификаций
                 byte[] specBytes = Encoding.Default.GetBytes(specFileName);
                 compW.Write(specBytes);
                 for (int i = specBytes.Length; i < SPEC_NAME_SIZE; i++)
@@ -138,6 +149,7 @@ namespace SpecificationApp
             }
         }
 
+        // Открывает существующий файл компонентов
         public void Open(string fileName)
         {
             if (!fileName.EndsWith(".prd"))
@@ -174,9 +186,6 @@ namespace SpecificationApp
                 {
                     // В Windows Forms можно показать предупреждение, но не прерывать операцию
                     System.Diagnostics.Debug.WriteLine($"Предупреждение: файл спецификаций {currentSpecFile} не найден");
-                    // Можно также показать MessageBox, но это может быть навязчиво
-                    // MessageBox.Show($"Предупреждение: файл спецификаций {currentSpecFile} не найден", 
-                    //    "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
                 {
@@ -194,6 +203,7 @@ namespace SpecificationApp
             }
         }
 
+        // Закрывает все открытые файлы
         public void Close()
         {
             specR?.Close();
@@ -211,6 +221,7 @@ namespace SpecificationApp
             compFs = null;
         }
 
+        // Возвращает список всех компонентов (не удаленных)
         public List<ComponentInfo> GetAllComponents()
         {
             var result = new List<ComponentInfo>();
@@ -286,6 +297,7 @@ namespace SpecificationApp
             return result;
         }
 
+        // Добавляет новый компонент в файл
         public void InputComponent(string name, string type)
         {
             if (compFs == null)
@@ -367,6 +379,7 @@ namespace SpecificationApp
             AddInAlphabeticalOrder(freeCompFilePtr, name);
         }
 
+        // Добавляет комплектующее (деталь или узел) в спецификацию компонента
         public void InputPart(string compName, string partName, short quantity)
         {
             if (compFs == null || specFs == null)
@@ -457,6 +470,7 @@ namespace SpecificationApp
             specW.Flush();
         }
 
+        // Помечает компонент и все его спецификации как удаленные
         public void DeleteComponent(string name)
         {
             int compPtr = FindComponentByName(name);
@@ -490,6 +504,7 @@ namespace SpecificationApp
             }
         }
 
+        // Удаляет комплектующее из спецификации компонента
         public void DeletePart(string compName, string partName)
         {
             if (specFs == null)
@@ -537,6 +552,7 @@ namespace SpecificationApp
             }
         }
 
+        // Восстанавливает ранее удаленный компонент
         public void RestoreComponent(string name)
         {
             int compPtr = FindComponentByName(name, true);
@@ -586,6 +602,7 @@ namespace SpecificationApp
             RestoreAlphabeticalOrder();
         }
 
+        // Возвращает древовидную структуру спецификации для указанного компонента
         public List<SpecificationItem> GetSpecification(string compName)
         {
             var result = new List<SpecificationItem>();
@@ -603,6 +620,7 @@ namespace SpecificationApp
             return GetSpecRecordsRecursive(specHeadPtr, 1);
         }
 
+        // Рекурсивно получает записи спецификации (внутренний метод)
         private List<SpecificationItem> GetSpecRecordsRecursive(int recordPtr, int level)
         {
             var result = new List<SpecificationItem>();
@@ -671,6 +689,7 @@ namespace SpecificationApp
             return result;
         }
 
+        // Находит указатель на компонент по имени (внутренний метод)
         private int FindComponentByName(string name, bool includeDeleted = false)
         {
             if (compFs == null) return -1;
@@ -708,6 +727,7 @@ namespace SpecificationApp
             return -1;
         }
 
+        // Проверяет, есть ли ссылки на данный компонент в спецификациях других компонентов
         private bool HasReferences(int compPtr)
         {
             if (specFs == null || specFs.Length <= FIRST_SIZE + FREE_SIZE)
@@ -745,6 +765,7 @@ namespace SpecificationApp
             return false;
         }
 
+        // Проверяет, есть ли в файле хотя бы одно изделие
         private bool HasAnyProduct()
         {
             if (compFs == null) return false;
@@ -771,6 +792,7 @@ namespace SpecificationApp
             return false;
         }
 
+        // Проверяет, ссылается ли какой-либо компонент на данный
         private bool IsReferenced(int compPtr)
         {
             if (specFs == null || specFs.Length <= FIRST_SIZE + FREE_SIZE)
@@ -806,6 +828,7 @@ namespace SpecificationApp
             return false;
         }
 
+        // Добавляет запись в алфавитном порядке в список компонентов
         private void AddInAlphabeticalOrder(int newRecordPtr, string newName)
         {
             // Получаем указатель на первую запись
@@ -899,6 +922,7 @@ namespace SpecificationApp
             }
         }
 
+        // Восстанавливает алфавитный порядок записей в файле компонентов
         private void RestoreAlphabeticalOrder()
         {
             List<Tuple<string, int>> records = new List<Tuple<string, int>>();

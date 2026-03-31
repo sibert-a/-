@@ -12,6 +12,7 @@
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;
 
+        // Освобождает ресурсы, используемые формой
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -21,6 +22,7 @@
             base.Dispose(disposing);
         }
 
+        // Инициализирует все элементы управления формы: метки, поля ввода, кнопки
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
@@ -33,7 +35,7 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.SuspendLayout();
 
-            // label1
+            // label1 - метка для поля имени файла
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 18);
             this.label1.Name = "label1";
@@ -41,13 +43,13 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Имя файла (.prd):";
 
-            // txtFileName
+            // txtFileName - поле ввода имени основного файла
             this.txtFileName.Location = new System.Drawing.Point(122, 15);
             this.txtFileName.Name = "txtFileName";
             this.txtFileName.Size = new System.Drawing.Size(200, 20);
             this.txtFileName.TabIndex = 1;
 
-            // label2
+            // label2 - метка для поля длины имени компонента
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(12, 48);
             this.label2.Name = "label2";
@@ -55,14 +57,14 @@
             this.label2.TabIndex = 2;
             this.label2.Text = "Длина имени компонента (байт):";
 
-            // txtDataLen
+            // txtDataLen - поле ввода длины имени компонента (по умолчанию 50)
             this.txtDataLen.Location = new System.Drawing.Point(200, 45);
             this.txtDataLen.Name = "txtDataLen";
             this.txtDataLen.Size = new System.Drawing.Size(122, 20);
             this.txtDataLen.TabIndex = 3;
             this.txtDataLen.Text = "50";
 
-            // label3
+            // label3 - метка для поля имени файла спецификации (необязательное)
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(12, 78);
             this.label3.Name = "label3";
@@ -70,13 +72,13 @@
             this.label3.TabIndex = 4;
             this.label3.Text = "Имя файла спецификации (опц):";
 
-            // txtSpecFileName
+            // txtSpecFileName - поле ввода имени файла спецификации (опционально)
             this.txtSpecFileName.Location = new System.Drawing.Point(182, 75);
             this.txtSpecFileName.Name = "txtSpecFileName";
             this.txtSpecFileName.Size = new System.Drawing.Size(140, 20);
             this.txtSpecFileName.TabIndex = 5;
 
-            // btnOK
+            // btnOK - кнопка подтверждения создания файла
             this.btnOK.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOK.Location = new System.Drawing.Point(122, 110);
             this.btnOK.Name = "btnOK";
@@ -86,7 +88,7 @@
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
 
-            // btnCancel
+            // btnCancel - кнопка отмены создания файла
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancel.Location = new System.Drawing.Point(222, 110);
             this.btnCancel.Name = "btnCancel";
@@ -96,7 +98,7 @@
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
 
-            // CreateFileForm
+            // CreateFileForm - настройка главного окна формы
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(334, 150);

@@ -10,6 +10,7 @@ namespace SpecificationApp
         private bool isEditMode = false;
         private string editingName = "";
 
+        // Конструктор - инициализирует форму, загружает список компонентов и настраивает отображение ListView
         public ComponentsForm(FileManager manager)
         {
             InitializeComponent();
@@ -37,6 +38,7 @@ namespace SpecificationApp
             UpdateButtonStates();
         }
 
+        // Загружает все компоненты из файла и отображает их в ListView
         private void LoadComponents()
         {
             listViewComponents.Items.Clear();
@@ -50,6 +52,7 @@ namespace SpecificationApp
             }
         }
 
+        // Обрабатывает нажатие кнопки Добавить - показывает панель ввода для создания нового компонента
         private void btnAdd_Click(object sender, EventArgs e)
         {
             isEditMode = false;
@@ -73,6 +76,7 @@ namespace SpecificationApp
             btnAdd.ForeColor = System.Drawing.Color.FromArgb(128, 128, 128);
         }
 
+        // Обрабатывает нажатие кнопки Изменить - загружает выбранный компонент в панель ввода для редактирования
         private void btnEdit_Click(object sender, EventArgs e)
         {
             if (listViewComponents.SelectedItems.Count > 0)
@@ -104,6 +108,7 @@ namespace SpecificationApp
             }
         }
 
+        // Обрабатывает нажатие кнопки Удалить - удаляет выбранный компонент после подтверждения
         private void btnDelete_Click(object sender, EventArgs e)
         {
             if (listViewComponents.SelectedItems.Count > 0)
@@ -128,7 +133,7 @@ namespace SpecificationApp
             }
         }
 
-
+        // Обрабатывает нажатие кнопки Сохранить - сохраняет новый или отредактированный компонент
         private void btnSave_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtName.Text))
@@ -172,11 +177,13 @@ namespace SpecificationApp
             }
         }
 
+        // Обрабатывает нажатие кнопки Отмена - скрывает панель ввода без сохранения
         private void btnCancel_Click(object sender, EventArgs e)
         {
             CancelEdit();
         }
 
+        // Отменяет редактирование, скрывает панель ввода и восстанавливает состояние кнопок
         private void CancelEdit()
         {
             panelBottom.Visible = false;
@@ -195,6 +202,7 @@ namespace SpecificationApp
             UpdateButtonStates();
         }
 
+        // Обновляет состояние кнопок при изменении выделения в списке
         private void listViewComponents_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Обновляем состояние кнопок только если не в режиме редактирования
@@ -204,6 +212,7 @@ namespace SpecificationApp
             }
         }
 
+        // Обновляет доступность кнопок в зависимости от наличия выделения и режима редактирования
         private void UpdateButtonStates()
         {
             bool hasSelection = listViewComponents.SelectedItems.Count > 0;
@@ -219,8 +228,6 @@ namespace SpecificationApp
             // Обновляем цвета кнопок
             btnEdit.ForeColor = btnEdit.Enabled ? System.Drawing.Color.Black : System.Drawing.Color.FromArgb(128, 128, 128);
             btnDelete.ForeColor = btnDelete.Enabled ? System.Drawing.Color.Black : System.Drawing.Color.FromArgb(128, 128, 128);
-
-            // Кнопки Сохранить и Отмена управляются отдельно в режиме редактирования
         }
     }
 }
