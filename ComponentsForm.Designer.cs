@@ -51,8 +51,8 @@
             this.listViewComponents.BackColor = System.Drawing.Color.White;
             this.listViewComponents.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.listViewComponents.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-                this.columnHeader1,
-                this.columnHeader2});
+        this.columnHeader1,
+        this.columnHeader2});
             this.listViewComponents.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listViewComponents.FullRowSelect = true;
             this.listViewComponents.GridLines = false;
@@ -80,9 +80,9 @@
             this.panelTop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelTop.Controls.Add(this.btnAdd);
             this.panelTop.Controls.Add(this.btnEdit);
-            this.panelTop.Controls.Add(this.btnDelete);
-            this.panelTop.Controls.Add(this.btnSave);
             this.panelTop.Controls.Add(this.btnCancel);
+            this.panelTop.Controls.Add(this.btnSave);
+            this.panelTop.Controls.Add(this.btnDelete);
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTop.Location = new System.Drawing.Point(0, 0);
             this.panelTop.Name = "panelTop";
@@ -118,20 +118,20 @@
             this.btnEdit.UseVisualStyleBackColor = false;
             this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
 
-            // btnDelete
-            this.btnDelete.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
-            this.btnDelete.Enabled = false;
-            this.btnDelete.FlatAppearance.BorderSize = 0;
-            this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDelete.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.btnDelete.ForeColor = System.Drawing.Color.FromArgb(128, 128, 128);
-            this.btnDelete.Location = new System.Drawing.Point(175, 8);
-            this.btnDelete.Name = "btnDelete";
-            this.btnDelete.Size = new System.Drawing.Size(80, 25);
-            this.btnDelete.TabIndex = 2;
-            this.btnDelete.Text = "Удалить";
-            this.btnDelete.UseVisualStyleBackColor = false;
-            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
+            // btnCancel
+            this.btnCancel.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
+            this.btnCancel.Enabled = false;
+            this.btnCancel.FlatAppearance.BorderSize = 0;
+            this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnCancel.ForeColor = System.Drawing.Color.FromArgb(128, 128, 128);
+            this.btnCancel.Location = new System.Drawing.Point(175, 8);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(80, 25);
+            this.btnCancel.TabIndex = 2;
+            this.btnCancel.Text = "Отменить";
+            this.btnCancel.UseVisualStyleBackColor = false;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
 
             // btnSave
             this.btnSave.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
@@ -148,20 +148,20 @@
             this.btnSave.UseVisualStyleBackColor = false;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
 
-            // btnCancel
-            this.btnCancel.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
-            this.btnCancel.Enabled = false;
-            this.btnCancel.FlatAppearance.BorderSize = 0;
-            this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.btnCancel.ForeColor = System.Drawing.Color.FromArgb(128, 128, 128);
-            this.btnCancel.Location = new System.Drawing.Point(345, 8);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(80, 25);
-            this.btnCancel.TabIndex = 4;
-            this.btnCancel.Text = "Отмена";
-            this.btnCancel.UseVisualStyleBackColor = false;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            // btnDelete
+            this.btnDelete.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
+            this.btnDelete.Enabled = false;
+            this.btnDelete.FlatAppearance.BorderSize = 0;
+            this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDelete.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnDelete.ForeColor = System.Drawing.Color.FromArgb(128, 128, 128);
+            this.btnDelete.Location = new System.Drawing.Point(345, 8);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.Size = new System.Drawing.Size(80, 25);
+            this.btnDelete.TabIndex = 4;
+            this.btnDelete.Text = "Удалить";
+            this.btnDelete.UseVisualStyleBackColor = false;
+            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
 
             // panelBottom
             this.panelBottom.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
@@ -210,9 +210,9 @@
             this.cmbType.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cmbType.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.cmbType.Items.AddRange(new object[] {
-                "Изделие",
-                "Узел",
-                "Деталь"});
+        "Изделие",
+        "Узел",
+        "Деталь"});
             this.cmbType.Location = new System.Drawing.Point(330, 15);
             this.cmbType.Name = "cmbType";
             this.cmbType.Size = new System.Drawing.Size(100, 23);
